@@ -1,0 +1,56 @@
+// @file        APM32F101_102_103_105_107.dbgconf
+//
+// @brief       This file provides firmware functions to Debug MCU
+//
+// @version     V1.0.0
+//
+// @date        2022-01-05
+//
+// @note        refer to APM32F101xx APM32F102xx APM32F103xx APM32F105xx APM32F107xx Reference manual
+//              APM32F101xx APM32F102xx APM32F103xx APM32F105xx APM32F107xx datasheets
+//
+// @attention
+//
+//  Copyright (C) 2020-2022 Geehy Semiconductor
+//
+//  You may not use this file except in compliance with the
+//  GEEHY COPYRIGHT NOTICE (GEEHY SOFTWARE PACKAGE LICENSE).
+//
+//  The program is only for reference, which is distributed in the hope
+//  that it will be usefull and instructional for customers to develop
+//  their software. Unless required by applicable law or agreed to in
+//  writing, the program is distributed on an "AS IS" BASIS, WITHOUT
+//  ANY WARRANTY OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the GEEHY SOFTWARE PACKAGE LICENSE for the governing permissions
+//  and limitations under the License.
+
+
+
+// Use Configuration Wizard in Context Menu
+//<h> Debug MCU configuration register (DBGMCU_CFG)
+//                                         <i> Reserved bits must be kept at reset value
+//  <o.30> DBGMCU_TMR11_STS                <i> TMR11 counter stopped when core is halted
+//  <o.29> DBGMCU_TMR10_STS                <i> TMR10 counter stopped when core is halted
+//  <o.28> DBGMCU_TMR9_STS                 <i> TMR9 counter stopped when core is halted
+//  <o.27> DBGMCU_TMR14_STS                <i> TMR14 counter stopped when core is halted
+//  <o.26> DBGMCU_TMR13_STS                <i> TMR13 counter stopped when core is halted
+//  <o.25> DBGMCU_TMR12_STS                <i> TMR12 counter stopped when core is halted
+//  <o.21> DBGMCU_CAN2_STS                 <i> Debug CAN2 stopped when core is halted
+//  <o.20> DBGMCU_TMR7_STS                 <i> TMR7 counter stopped when core is halted
+//  <o.19> DBGMCU_TMR6_STS                 <i> TMR6 counter stopped when core is halted
+//  <o.18> DBGMCU_TMR5_STS                 <i> TMR5 counter stopped when core is halted
+//  <o.17> DBGMCU_TMR8_STS                 <i> TMR8 counter stopped when core is halted
+//  <o.16> DBGMCU_I2C2_SMBUS_TMREOUT_STS   <i> SMBUS TMReout mode stopped when core is halted
+//  <o.15> DBGMCU_I2C1_SMBUS_TMREOUT_STS   <i> SMBUS TMReout mode stopped when core is halted
+//  <o.14> DBGMCU_CAN1_STS                 <i> Debug CAN1 stopped when Core is halted
+//  <o.13> DBGMCU_TMR4_STS                 <i> TMR4 counter stopped when core is halted
+//  <o.12> DBGMCU_TMR3_STS                 <i> TMR3 counter stopped when core is halted
+//  <o.11> DBGMCU_TMR2_STS                 <i> TMR2 counter stopped when core is halted
+//  <o.10> DBGMCU_TMR1_STS                 <i> TMR1 counter stopped when core is halted
+//  <o.9>  DBGMCU_WWDT_STS                 <i> Debug window watchdog stopped when core is halted
+//  <o.8>  DBGMCU_IWDT_STS                 <i> Debug independent watchdog stopped when core is halted
+//  <o.2>  DBGMCU_STANDBY_CLK_STS          <i> Debug standby mode
+//  <o.1>  DBGMCU_STOP_CLK_STS             <i> Debug stop mode
+//  <o.0>  DBGMCU_SLEEP_CLK_STS            <i> Debug sleep mode
+// </h>
+DbgMCU_CFG = 0x00000007;
