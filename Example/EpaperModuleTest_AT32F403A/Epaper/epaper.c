@@ -104,8 +104,8 @@ void epd_io_init(void)
   gpio_init(GPIOB, &gpio_init_struct);
 
   /* configure the epaper module spi2 mosi pin */
-//  gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
-//  gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+  //  gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
+  //  gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
   gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
   gpio_init_struct.gpio_pins = GPIO_PINS_15;
   gpio_init(GPIOB, &gpio_init_struct);
@@ -158,15 +158,17 @@ void epd_write_data(uint8_t data)
   epd_cs_set();
 }
 
-void epd_read_data(uint8_t reg,uint8_t *data,uint8_t length)
+void epd_read_data(uint8_t reg, uint8_t *data, uint8_t length)
 {
   epd_cs_reset();
   spi_i2s_data_transmit(SPI2, reg);
-  while (spi_i2s_flag_get(SPI2, SPI_I2S_BF_FLAG) != RESET);
-  for(uint32_t i=0;i<length;i++)
+  while (spi_i2s_flag_get(SPI2, SPI_I2S_BF_FLAG) != RESET)
+    ;
+  for (uint32_t i = 0; i < length; i++)
   {
     data[i] = spi_i2s_data_receive(SPI2);
-    while (spi_i2s_flag_get(SPI2, SPI_I2S_BF_FLAG) != RESET);
+    while (spi_i2s_flag_get(SPI2, SPI_I2S_BF_FLAG) != RESET)
+      ;
   }
   epd_cs_set();
 }
@@ -268,17 +270,17 @@ void epd_init_internalTempSensor(void)
   epd_write_data(0x7F);
   epd_write_data(0xF0);
 }
-  uint8_t data[3];
+uint8_t data[3];
 int32_t epd_get_internalTempSensor(void)
 {
-  
+
   uint32_t temp;
-  
-  epd_read_data(0x1B,data,3);
+
+  epd_read_data(0x1B, data, 3);
 
   temp = data[0];
   temp = temp << 4 | data[1] >> 4;
-  
+
   if (temp & (1 << 11))
   {
     temp = (((~temp) & 0xfff) + 1) * 10 / 16;
@@ -604,7 +606,7 @@ void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, uint16_t size1, ui
   uint16_t i, m, temp, size2, chr1;
   uint16_t x0, y0;
   x += 1, y += 1, x0 = x, y0 = y;
-  if(x-size1 > EPD_H)
+  if (x - size1 > EPD_H)
     return;
   if (size1 == 8)
     size2 = 6;
@@ -656,7 +658,14 @@ void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, uint16_t size1, 
   {
     epd_paint_showChar(x, y, *chr, size1, color);
     chr++;
-    x += size1 / 2;
+    if (size1 == 8)
+    {
+      x += 6;
+    }
+    else
+    {
+      x += size1 / 2;
+    }
   }
 }
 
@@ -738,8 +747,8 @@ void epd_paint_showChinese(uint16_t x, uint16_t y, uint16_t num, uint16_t size1,
 void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color)
 {
   uint16_t j = 0;
-  uint16_t i, n=0, temp=0, m=0;
-  uint16_t x0=0, y0=0;
+  uint16_t i, n = 0, temp = 0, m = 0;
+  uint16_t x0 = 0, y0 = 0;
   x += 1, y += 1, x0 = x, y0 = y;
   sizey = sizey / 8 + ((sizey % 8) ? 1 : 0);
   for (n = 0; n < sizey; n++)

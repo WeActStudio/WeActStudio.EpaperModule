@@ -1,0 +1,14 @@
+Toolchain=
+Series=
+Description=
+Address=0x08000000
+Target Path=obj\EpaperModuleTest_CH32V103.hex
+Erase All=true
+Program=true
+Verify=true
+Reset=true
+
+Vendor=WCH
+MCU=CH32V103C8T6
+Mcu Type=CH32V10x
+Link=WCH-Link

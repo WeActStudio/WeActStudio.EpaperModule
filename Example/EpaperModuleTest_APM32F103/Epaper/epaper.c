@@ -635,7 +635,14 @@ void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, uint16_t size1, 
   {
     epd_paint_showChar(x, y, *chr, size1, color);
     chr++;
-    x += size1 / 2;
+    if (size1 == 8)
+    {
+      x += 6;
+    }
+    else
+    {
+      x += size1 / 2;
+    }
   }
 }
 
