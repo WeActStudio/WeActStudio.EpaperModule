@@ -169,7 +169,7 @@ uint8_t epd_wait_busy()
   while (epd_is_busy())
   {
     timeout++;
-    if (timeout > 20000)
+    if (timeout > 40000)
     {
       return 1;
     }
@@ -205,7 +205,7 @@ uint8_t epd_init(void)
   epd_write_data(0x0F); // 0x0F-->(15+1)*8=128
 
   epd_write_reg(0x45);  // set Ram-Y address start/end position
-  epd_write_data(0x27); // 0xF9-->(249+1)=250
+  epd_write_data(0x27); // 0x127-->(295+1)=296
   epd_write_data(0x01);
   epd_write_data(0x00);
   epd_write_data(0x00);
@@ -286,10 +286,8 @@ void epd_setpos(uint16_t x, uint16_t y)
   uint16_t _y;
 
   _x = x / 8;
-  if (y > 249)
-    _y = 46;
-  else
-    _y = 295 - y;
+
+  _y = 295 - y;
 
   epd_write_reg(0x4E); // set RAM x address count to 0;
   epd_write_data(_x);
@@ -302,8 +300,8 @@ void epd_display(uint8_t *Image1, uint8_t *Image2)
 {
   uint32_t Width, Height, i, j;
   uint32_t k = 0;
-  Width = 250;
-  Height = 16;
+  Width = EPD_H;
+  Height = EPD_W_BUFF_SIZE;
   epd_setpos(0, 0);
   epd_write_reg(0x24);
   epd_cs_reset();
@@ -338,8 +336,8 @@ void epd_displayBW(uint8_t *Image)
 {
   uint32_t Width, Height, i, j;
   uint32_t k = 0;
-  Width = 250;
-  Height = 16;
+  Width = EPD_H;
+  Height = EPD_W_BUFF_SIZE;
   epd_setpos(0, 0);
   epd_write_reg(0x24);
   epd_cs_reset();
@@ -360,8 +358,8 @@ void epd_displayRED(uint8_t *Image)
 {
   uint32_t Width, Height, i, j;
   uint32_t k = 0;
-  Width = 250;
-  Height = 16;
+  Width = EPD_H;
+  Height = EPD_W_BUFF_SIZE;
   epd_setpos(0, 0);
   epd_write_reg(0x26);
   epd_cs_reset();

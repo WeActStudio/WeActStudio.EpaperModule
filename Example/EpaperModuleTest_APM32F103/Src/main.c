@@ -14,11 +14,12 @@
 #include "epaper.h"
 #include "bmp.h"
 
+// define for White Black Red Epaper Module
 #define EPD_BWR
 
-uint8_t image_bw[4000];
+uint8_t image_bw[EPD_W_BUFF_SIZE * EPD_H];
 #ifdef EPD_BWR
-uint8_t image_red[4000];
+uint8_t image_red[EPD_W_BUFF_SIZE * EPD_H];
 #endif
 
 /*!
@@ -57,11 +58,10 @@ int main(void)
 
     epd_paint_selectimage(image_bw);
     epd_paint_clear(EPD_COLOR_WHITE);
-    epd_paint_showPicture(0, 0, 250, 122, gImage_2, EPD_COLOR_BLACK);
 
     epd_paint_selectimage(image_red);
     epd_paint_clear(EPD_COLOR_WHITE);
-    epd_paint_showPicture(0, 0, 250, 122, gImage_3, EPD_COLOR_WHITE);
+	epd_paint_showPicture((EPD_H - 250) / 2, (EPD_W - 122) / 2, 250, 122, gImage_4, EPD_COLOR_WHITE);
 
     epd_display(image_bw, image_red);
 
@@ -69,9 +69,15 @@ int main(void)
 
     epd_paint_selectimage(image_bw);
     epd_paint_clear(EPD_COLOR_WHITE);
+#ifdef EPD_213
     epd_paint_showString(10, 0, (uint8_t *)&"2.13 Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
-    epd_paint_showString(10, 29, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
     epd_paint_showString(10, 50, (uint8_t *)&"with 250 x 122 resolution", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
+#endif
+#ifdef EPD_29
+	epd_paint_showString(10, 0, (uint8_t *)&"2.9 Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
+	epd_paint_showString(10, 50, (uint8_t *)&"with 296 x 128 resolution", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
+#endif
+	epd_paint_showString(10, 29, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
 
     epd_paint_selectimage(image_red);
     epd_paint_clear(EPD_COLOR_WHITE);
@@ -82,7 +88,7 @@ int main(void)
 #if 0
     epd_paint_showString(10,100,(uint8_t *)&"APM32F103CBT6 Example",EPD_FONT_SIZE16x8,EPD_COLOR_RED);
 #else
-    epd_paint_drawRectangle(10, 103, 240, 116, EPD_COLOR_RED, 1);
+	epd_paint_drawRectangle(10, 103, EPD_H - 10, 116, EPD_COLOR_RED, 1);
 #endif
 
     epd_display(image_bw, image_red);
@@ -91,7 +97,7 @@ int main(void)
 
     epd_paint_selectimage(image_bw);
     epd_paint_clear(EPD_COLOR_WHITE);
-    epd_paint_showPicture(0, 0, 250, 122, gImage_1, EPD_COLOR_WHITE);
+	epd_paint_showPicture((EPD_H - 250) / 2, (EPD_W - 122) / 2, 250, 122, gImage_4, EPD_COLOR_WHITE);
 
     epd_displayBW(image_bw);
 
@@ -99,9 +105,15 @@ int main(void)
 
     epd_paint_selectimage(image_bw);
     epd_paint_clear(EPD_COLOR_WHITE);
+#ifdef EPD_213
     epd_paint_showString(10, 0, (uint8_t *)&"2.13 Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
-    epd_paint_showString(10, 29, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
     epd_paint_showString(10, 50, (uint8_t *)&"with 250 x 122 resolution", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
+#endif
+#ifdef EPD_29
+	epd_paint_showString(10, 0, (uint8_t *)&"2.9 Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
+	epd_paint_showString(10, 50, (uint8_t *)&"with 296 x 128 resolution", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
+#endif
+	epd_paint_showString(10, 29, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
 
     sprintf((char *)&text, ">> Hello World.");
     epd_paint_showString(10, 71, text, EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
@@ -109,12 +121,13 @@ int main(void)
 #if 0
     epd_paint_showString(10,100,(uint8_t *)&"APM32F103CBT6 Example",EPD_FONT_SIZE16x8,EPD_COLOR_BLACK);
 #else
-    epd_paint_drawRectangle(10, 103, 240, 116, EPD_COLOR_BLACK, 1);
+	epd_paint_drawRectangle(10, 103, EPD_H - 10, 116, EPD_COLOR_BLACK, 1);
 #endif
     epd_displayBW(image_bw);
 #endif
 
     epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
+    
     while (1)
     {
         if (!board_button_state_get())

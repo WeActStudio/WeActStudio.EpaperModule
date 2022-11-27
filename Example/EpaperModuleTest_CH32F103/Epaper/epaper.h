@@ -8,8 +8,22 @@ extern "C"
 
 #include "ch32f10x.h"
 
+//#define EPD_29
+//#define EPD_213
+
+#if (!defined EPD_29) && (!defined EPD_213)
+#error EPD Type Undefine
+#endif
+
+#ifdef EPD_29
+#define EPD_W 128
+#define EPD_H 296
+#endif
+
+#ifdef EPD_213
 #define EPD_W 122
 #define EPD_H 250
+#endif
 
 #define EPD_OK 0
 #define EPD_ERROR 1
@@ -31,6 +45,7 @@ extern "C"
 #define EPD_DEEPSLEEP_MODE1 (0x01)
 #define EPD_DEEPSLEEP_MODE2 (0x03)
 
+#define EPD_W_BUFF_SIZE ((EPD_W % 8 == 0) ? (EPD_W / 8) : (EPD_W / 8 + 1))
     typedef struct
     {
         uint8_t *Image;
@@ -54,7 +69,7 @@ extern "C"
     void epd_display(uint8_t *Image1, uint8_t *Image2);
     void epd_displayBW(uint8_t *Image);
     void epd_displayRED(uint8_t *Image);
-    
+
     void epd_paint_newimage(uint8_t *image, uint16_t Width, uint16_t Height, uint16_t Rotate, uint16_t Color);
     void epd_paint_setpixel(uint16_t Xpoint, uint16_t Ypoint, uint16_t Color);
     void epd_paint_selectimage(uint8_t *image);
