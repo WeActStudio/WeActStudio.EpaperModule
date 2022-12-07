@@ -62,12 +62,14 @@ extern "C"
 
     void epd_io_init(void);
     uint8_t epd_init(void);
+    uint8_t epd_init_partial(void);
     void epd_enter_deepsleepmode(uint8_t mode);
     void epd_init_internalTempSensor(void);
-    int32_t epd_get_internalTempSensor(void);
     void epd_update(void);
+    void epd_update_partial(void);
     void epd_display(uint8_t *Image1, uint8_t *Image2);
     void epd_displayBW(uint8_t *Image);
+    void epd_displayBW_partial(uint8_t *Image);
     void epd_displayRED(uint8_t *Image);
 
     void epd_paint_newimage(uint8_t *image, uint16_t Width, uint16_t Height, uint16_t Rotate, uint16_t Color);

@@ -22,6 +22,30 @@
 
 EPD_PAINT EPD_Paint;
 
+static uint8_t _hibernating = 1;
+
+static const unsigned char ut_partial[] =
+{
+  0x0, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x80, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x40, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0A, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2,
+  0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x0, 0x0, 0x0,
+};
+
 void epd_delay(uint16_t ms)
 {
   delay(ms);
@@ -132,13 +156,6 @@ void epd_write_data(uint8_t data)
   epd_cs_set();
 }
 
-void epd_read_data(uint8_t reg, uint8_t *data, uint8_t length)
-{
-  epd_cs_reset();
-
-  epd_cs_set();
-}
-
 void _epd_write_data(uint8_t data)
 {
   while (spi_i2s_flag_get(SPI1, SPI_FLAG_TBE) == RESET)
@@ -166,12 +183,20 @@ uint8_t epd_wait_busy()
   }
   return 0;
 }
-uint8_t epd_init(void)
+
+void epd_reset(void)
 {
   epd_res_reset();
   epd_delay(50);
   epd_res_set();
   epd_delay(50);
+  _hibernating = 0;
+}
+
+uint8_t epd_init(void)
+{
+  if (_hibernating)
+    epd_reset();
 
   if (epd_wait_busy())
     return 1;
@@ -221,10 +246,28 @@ uint8_t epd_init(void)
   return 0;
 }
 
+uint8_t epd_init_partial(void)
+{
+  if (epd_init())
+    return 1;
+
+  epd_write_reg(0x32);
+  epd_cs_reset();
+  for (int j = 0; j < sizeof(ut_partial); j++)
+  {
+    _epd_write_data(ut_partial[j]);
+  }
+  _epd_write_data_over();
+  epd_cs_set();
+
+  return 0;
+}
+
 void epd_enter_deepsleepmode(uint8_t mode)
 {
   epd_write_reg(0x10);
   epd_write_data(mode);
+  _hibernating = 1;
 }
 
 void epd_init_internalTempSensor(void)
@@ -236,34 +279,20 @@ void epd_init_internalTempSensor(void)
   epd_write_data(0x7F);
   epd_write_data(0xF0);
 }
-uint8_t data[3];
-int32_t epd_get_internalTempSensor(void)
-{
-
-  uint32_t temp;
-
-  epd_read_data(0x1B, data, 3);
-
-  temp = data[0];
-  temp = temp << 4 | data[1] >> 4;
-
-  if (temp & (1 << 11))
-  {
-    temp = (((~temp) & 0xfff) + 1) * 10 / 16;
-    temp = -temp;
-  }
-  else
-  {
-    temp = temp * 10 / 16;
-  }
-  return temp;
-}
 
 void epd_update(void)
 {
   epd_write_reg(0x22); // Display Update Control
   epd_write_data(0xF7);
-  // epd_write_data(0xFF);
+  epd_write_reg(0x20); // Activate Display Update Sequence
+
+  epd_wait_busy();
+}
+
+void epd_update_partial(void)
+{
+  epd_write_reg(0x22); // Display Update Control
+  epd_write_data(0xCC);
   epd_write_reg(0x20); // Activate Display Update Sequence
 
   epd_wait_busy();
@@ -285,26 +314,31 @@ void epd_setpos(uint16_t x, uint16_t y)
   epd_write_data(_y >> 8 & 0x01);
 }
 
+void epd_writedata(uint8_t *Image1, uint32_t length)
+{
+  epd_cs_reset();
+  for (uint32_t j = 0; j < length; j++)
+  {
+    _epd_write_data(Image1[j]);
+  }
+  _epd_write_data_over();
+  epd_cs_set();
+}
+
 void epd_display(uint8_t *Image1, uint8_t *Image2)
 {
   uint32_t Width, Height, i, j;
   uint32_t k = 0;
   Width = EPD_H;
   Height = EPD_W_BUFF_SIZE;
+
   epd_setpos(0, 0);
+
   epd_write_reg(0x24);
-  epd_cs_reset();
-  for (j = 0; j < Height; j++)
-  {
-    for (i = 0; i < Width; i++)
-    {
-      _epd_write_data(Image1[k]);
-      k++;
-    }
-  }
-  _epd_write_data_over();
-  epd_cs_set();
+  epd_writedata(Image1, Width * Height);
+
   epd_setpos(0, 0);
+
   epd_write_reg(0x26);
   k = 0;
   epd_cs_reset();
@@ -318,50 +352,58 @@ void epd_display(uint8_t *Image1, uint8_t *Image2)
   }
   _epd_write_data_over();
   epd_cs_set();
+
   epd_update();
 }
 
 void epd_displayBW(uint8_t *Image)
 {
-  uint32_t Width, Height, i, j;
-  uint32_t k = 0;
+  uint32_t Width, Height;
+  
   Width = EPD_H;
   Height = EPD_W_BUFF_SIZE;
+
+  epd_setpos(0, 0);
+  epd_write_reg(0x26);
+  epd_writedata(Image, Width * Height);
+
   epd_setpos(0, 0);
   epd_write_reg(0x24);
-  epd_cs_reset();
-  for (j = 0; j < Height; j++)
-  {
-    for (i = 0; i < Width; i++)
-    {
-      _epd_write_data(Image[k]);
-      k++;
-    }
-  }
-  _epd_write_data_over();
-  epd_cs_set();
+  epd_writedata(Image, Width * Height);
+
   epd_update();
+}
+
+void epd_displayBW_partial(uint8_t *Image)
+{
+  uint32_t Width, Height;
+
+  Width = EPD_H;
+  Height = EPD_W_BUFF_SIZE;
+
+  epd_setpos(0, 0);
+  epd_write_reg(0x24);
+  epd_writedata(Image, Width * Height);
+
+  epd_update_partial();
+
+  epd_setpos(0, 0);
+  epd_write_reg(0x26);
+  epd_writedata(Image, Width * Height);
 }
 
 void epd_displayRED(uint8_t *Image)
 {
-  uint32_t Width, Height, i, j;
-  uint32_t k = 0;
+  uint32_t Width, Height;
+
   Width = EPD_H;
   Height = EPD_W_BUFF_SIZE;
+
   epd_setpos(0, 0);
+
   epd_write_reg(0x26);
-  epd_cs_reset();
-  for (j = 0; j < Height; j++)
-  {
-    for (i = 0; i < Width; i++)
-    {
-      _epd_write_data(Image[k]);
-      k++;
-    }
-  }
-  _epd_write_data_over();
-  epd_cs_set();
+  epd_writedata(Image, Width * Height);
+
   epd_update();
 }
 

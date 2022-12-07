@@ -394,14 +394,14 @@
               <FilePath>..\Src\main.c</FilePath>
             </File>
             <File>
-              <FileName>systick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\systick.c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\systick.c</FilePath>
             </File>
             <File>
               <FileName>usart.c</FileName>
@@ -955,14 +955,14 @@
               <FilePath>..\Src\main.c</FilePath>
             </File>
             <File>
-              <FileName>systick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\systick.c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\systick.c</FilePath>
             </File>
             <File>
               <FileName>usart.c</FileName>
