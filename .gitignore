@@ -49,3 +49,11 @@ stm32.mak
 .vagrant
 ubuntu*.log
 /.vs
+
+JLinkLog.txt
+
+*.map
+*.build_log.htm
+*.lst
+*.htm
+*.sct

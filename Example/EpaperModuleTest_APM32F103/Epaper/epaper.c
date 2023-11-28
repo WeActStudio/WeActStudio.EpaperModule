@@ -27,7 +27,7 @@ EPD_PAINT EPD_Paint;
 
 static uint8_t _hibernating = 1;
 
-static const unsigned char ut_partial[] =
+static const unsigned char lut_partial[] =
 {
   0x0, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
   0x80, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -214,17 +214,36 @@ uint8_t epd_init(void)
 
   epd_write_reg(0x12); // SWRESET
 
+	epd_delay(10);
+
   if (epd_wait_busy())
     return 1;
 
   epd_write_reg(0x01); // Driver output control
+#if defined(EPD_29) || defined(EPD_213)
   epd_write_data(0x27);
   epd_write_data(0x01);
   epd_write_data(0x01);
+#else
+  epd_write_data(0xC7);
+  epd_write_data(0x00);
+  epd_write_data(0x01);
+	#endif
 
   epd_write_reg(0x11); // data entry mode
   epd_write_data(0x01);
 
+#ifdef EPD_154
+	epd_write_reg(0x44); // set Ram-X address start/end position
+  epd_write_data(0x00);
+  epd_write_data(0x18);
+
+  epd_write_reg(0x45);  // set Ram-Y address start/end position
+  epd_write_data(0xC7);
+  epd_write_data(0x00);
+  epd_write_data(0x00);
+  epd_write_data(0x00);
+	#else
   epd_write_reg(0x44); // set Ram-X address start/end position
   epd_write_data(0x00);
   epd_write_data(0x0F); // 0x0F-->(15+1)*8=128
@@ -234,24 +253,23 @@ uint8_t epd_init(void)
   epd_write_data(0x01);
   epd_write_data(0x00);
   epd_write_data(0x00);
+#endif
 
   epd_write_reg(0x3C); // BorderWavefrom
   epd_write_data(0x05);
 
+#if defined(EPD_29) || defined(EPD_213)
   epd_write_reg(0x21); //  Display update control
   epd_write_data(0x00);
   epd_write_data(0x80);
+#endif
 
   epd_write_reg(0x18); // Read built-in temperature sensor
   epd_write_data(0x80);
 
-  epd_write_reg(0x4E); // set RAM x address count to 0;
-  epd_write_data(0x00);
-  epd_write_reg(0x4F); // set RAM y address count to 0x127;
-  epd_write_data(0x27);
-  epd_write_data(0x01);
+  epd_setpos(0,0);
 
-  if (epd_wait_busy())
+  if (epd_power_on())
     return 1;
 
   return 0;
@@ -262,23 +280,44 @@ uint8_t epd_init_partial(void)
   if (epd_init())
     return 1;
 
+#if defined(EPD_29) || defined(EPD_213)
   epd_write_reg(0x32);
   epd_cs_reset();
-  for (int j = 0; j < sizeof(ut_partial); j++)
+  for (int j = 0; j < sizeof(lut_partial); j++)
   {
-    _epd_write_data(ut_partial[j]);
+    _epd_write_data(lut_partial[j]);
   }
   _epd_write_data_over();
   epd_cs_set();
+#endif
 
   return 0;
 }
 
 void epd_enter_deepsleepmode(uint8_t mode)
 {
+  epd_power_off();
   epd_write_reg(0x10);
   epd_write_data(mode);
   _hibernating = 1;
+}
+
+uint8_t epd_power_on(void)
+{
+	epd_write_reg(0x22); // Display Update Control
+	epd_write_data(0xf8);
+  epd_write_reg(0x20); // Activate Display Update Sequence
+
+  return epd_wait_busy();
+}
+
+uint8_t epd_power_off(void)
+{
+	epd_write_reg(0x22); // Display Update Control
+	epd_write_data(0x83);
+  epd_write_reg(0x20); // Activate Display Update Sequence
+
+  return epd_wait_busy();
 }
 
 void epd_init_internalTempSensor(void)
@@ -294,7 +333,11 @@ void epd_init_internalTempSensor(void)
 void epd_update(void)
 {
   epd_write_reg(0x22); // Display Update Control
+#ifdef EPD_154
+	epd_write_data(0xF4);
+	#else
   epd_write_data(0xF7);
+#endif
   epd_write_reg(0x20); // Activate Display Update Sequence
 
   epd_wait_busy();
@@ -303,7 +346,11 @@ void epd_update(void)
 void epd_update_partial(void)
 {
   epd_write_reg(0x22); // Display Update Control
+#ifdef EPD_154
+	epd_write_data(0xFC);
+	#else
   epd_write_data(0xCC);
+#endif
   epd_write_reg(0x20); // Activate Display Update Sequence
 
   epd_wait_busy();
@@ -316,7 +363,11 @@ void epd_setpos(uint16_t x, uint16_t y)
 
   _x = x / 8;
 
+#ifdef EPD_154
+	_y = 199 - y;
+	#else
   _y = 295 - y;
+#endif
 
   epd_write_reg(0x4E); // set RAM x address count to 0;
   epd_write_data(_x);
@@ -678,10 +729,14 @@ void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, uint16_t size1, 
     if (size1 == 8)
     {
       x += 6;
+      if(x > EPD_H-6)
+				break;
     }
     else
     {
       x += size1 / 2;
+      if(x > EPD_H-size1 / 2)
+				break;
     }
   }
 }

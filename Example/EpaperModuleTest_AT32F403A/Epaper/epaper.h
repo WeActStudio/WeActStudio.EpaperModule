@@ -10,8 +10,9 @@ extern "C"
 
 //#define EPD_29
 //#define EPD_213
+//#define EPD_154
 
-#if (!defined EPD_29) && (!defined EPD_213)
+#if (!defined EPD_29) && (!defined EPD_213) && (!defined EPD_154)
 #error EPD Type Undefine
 #endif
 
@@ -24,6 +25,12 @@ extern "C"
 #define EPD_W 122
 #define EPD_H 250
 #endif
+
+#ifdef EPD_154
+#define EPD_W 200
+#define EPD_H 200
+#endif
+
 
 #define EPD_OK 0
 #define EPD_ERROR 1
@@ -64,9 +71,12 @@ extern "C"
     uint8_t epd_init(void);
     uint8_t epd_init_partial(void);
     void epd_enter_deepsleepmode(uint8_t mode);
+		uint8_t epd_power_on(void);
+		uint8_t epd_power_off(void);
     void epd_init_internalTempSensor(void);
     void epd_update(void);
     void epd_update_partial(void);
+		void epd_setpos(uint16_t x, uint16_t y);
     void epd_display(uint8_t *Image1, uint8_t *Image2);
     void epd_displayBW(uint8_t *Image);
     void epd_displayBW_partial(uint8_t *Image);

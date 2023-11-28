@@ -92,7 +92,7 @@ int main(void)
     sprintf((char *)&text, ">> Hello World.");
     epd_paint_showString(10, 71, text, EPD_FONT_SIZE24x12, EPD_COLOR_RED);
 
-#if 0
+#if 1
     epd_paint_showString(10,100,(uint8_t *)&"CH32F103C8T6 Example",EPD_FONT_SIZE16x8,EPD_COLOR_RED);
 #else
 	epd_paint_drawRectangle(10, 103, EPD_H - 10, 116, EPD_COLOR_RED, 1);
@@ -103,8 +103,14 @@ int main(void)
     epd_paint_newimage(image_bw, EPD_W, EPD_H, EPD_ROTATE_180, EPD_COLOR_WHITE);
 
     epd_paint_selectimage(image_bw);
+
+	#ifdef EPD_154
+  epd_paint_clear(EPD_COLOR_WHITE);
+	epd_paint_showPicture((EPD_H - 200) / 2,(EPD_W - 64) / 2,200,64,gImage_5,EPD_COLOR_WHITE);	
+	#else
     epd_paint_clear(EPD_COLOR_WHITE);
 	epd_paint_showPicture((EPD_H - 250) / 2, (EPD_W - 122) / 2, 250, 122, gImage_4, EPD_COLOR_WHITE);
+#endif
 
     epd_displayBW(image_bw);
 	epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
@@ -115,17 +121,25 @@ int main(void)
 
     epd_paint_selectimage(image_bw);
     epd_paint_clear(EPD_COLOR_WHITE);
+#ifdef EPD_154
+  epd_paint_showString(10, 0, (uint8_t *)&"1.54 Inch", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
+	epd_paint_showString(10, 23, (uint8_t *)&"Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
+	epd_paint_showString(10, 48, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE12x6, EPD_COLOR_BLACK);
+	epd_paint_showString(10, 60, (uint8_t *)&"with 200 x 200 resolution", EPD_FONT_SIZE12x6, EPD_COLOR_BLACK);
+	epd_paint_showPicture((EPD_H - 200) / 2,130,200,64,gImage_5,EPD_COLOR_WHITE);
+#endif
 #ifdef EPD_213
     epd_paint_showString(10, 0, (uint8_t *)&"2.13 Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
     epd_paint_showString(10, 50, (uint8_t *)&"with 250 x 122 resolution", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
+    epd_paint_showString(10, 29, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
 #endif
 #ifdef EPD_29
 	epd_paint_showString(10, 0, (uint8_t *)&"2.9 Epaper Module", EPD_FONT_SIZE24x12, EPD_COLOR_BLACK);
 	epd_paint_showString(10, 50, (uint8_t *)&"with 296 x 128 resolution", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
-#endif
 	epd_paint_showString(10, 29, (uint8_t *)&"Designed By WeAct Studio", EPD_FONT_SIZE16x8, EPD_COLOR_BLACK);
+#endif
 
-#if 0
+#if 1
     epd_paint_showString(10,100,(uint8_t *)&"CH32F103C8T6 Example",EPD_FONT_SIZE16x8,EPD_COLOR_BLACK);
 #else
 	epd_paint_drawRectangle(10, 103, EPD_H - 10, 116, EPD_COLOR_BLACK, 1);
