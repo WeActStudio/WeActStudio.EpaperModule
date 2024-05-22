@@ -8,11 +8,12 @@ extern "C"
 
 #include "at32f403a_407.h"
 
+//#define EPD_42
 //#define EPD_29
 //#define EPD_213
 //#define EPD_154
 
-#if (!defined EPD_29) && (!defined EPD_213) && (!defined EPD_154)
+#if (!defined EPD_29) && (!defined EPD_213) && (!defined EPD_154) && (!defined EPD_42)
 #error EPD Type Undefine
 #endif
 
@@ -31,6 +32,10 @@ extern "C"
 #define EPD_H 200
 #endif
 
+#ifdef EPD_42
+#define EPD_W 400
+#define EPD_H 300
+#endif
 
 #define EPD_OK 0
 #define EPD_ERROR 1
@@ -76,6 +81,7 @@ extern "C"
     void epd_init_internalTempSensor(void);
     void epd_update(void);
     void epd_update_partial(void);
+		void epd_address_set(uint16_t x_start,uint16_t y_start,uint16_t x_end,uint16_t y_end);
 		void epd_setpos(uint16_t x, uint16_t y);
     void epd_display(uint8_t *Image1, uint8_t *Image2);
     void epd_displayBW(uint8_t *Image);

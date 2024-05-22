@@ -234,54 +234,70 @@ uint8_t epd_init(void)
   if (epd_wait_busy())
     return 1;
 	
-	epd_write_reg(0x01); // Driver output control
-	#if defined(EPD_29) || defined(EPD_213)
-  epd_write_data(0x27);
-  epd_write_data(0x01);
-  epd_write_data(0x01);
-	#else
-  epd_write_data(0xC7);
-  epd_write_data(0x00);
-  epd_write_data(0x01);
+	#if defined(EPD_29) || defined(EPD_213) || defined(EPD_154) 
+		epd_write_reg(0x01); // Driver output control
+		#if defined(EPD_29) || defined(EPD_213)
+		epd_write_data(0x27);
+		epd_write_data(0x01);
+		epd_write_data(0x01);
+		#else
+		epd_write_data(0xC7);
+		epd_write_data(0x00);
+		epd_write_data(0x01);
+		#endif
+
+		epd_write_reg(0x11); // data entry mode
+		epd_write_data(0x01);
+
+		#ifdef EPD_154
+		epd_write_reg(0x44); // set Ram-X address start/end position
+		epd_write_data(0x00);
+		epd_write_data(0x18);
+
+		epd_write_reg(0x45);  // set Ram-Y address start/end position
+		epd_write_data(0xC7);
+		epd_write_data(0x00);
+		epd_write_data(0x00);
+		epd_write_data(0x00);
+		#else
+		epd_write_reg(0x44); // set Ram-X address start/end position
+		epd_write_data(0x00);
+		epd_write_data(0x0F); // 0x0F-->(15+1)*8=128
+
+		epd_write_reg(0x45);  // set Ram-Y address start/end position
+		epd_write_data(0x27); // 0x127-->(295+1)=296
+		epd_write_data(0x01);
+		epd_write_data(0x00);
+		epd_write_data(0x00);
+		#endif
+
+		epd_write_reg(0x3C); // BorderWavefrom
+		epd_write_data(0x05);
+
+		#if defined(EPD_29) || defined(EPD_213)
+		epd_write_reg(0x21); //  Display update control
+		epd_write_data(0x00);
+		epd_write_data(0x80);
+		#endif
+
+	#elif defined(EPD_42)
+		epd_write_reg(0x21); // Display Update Controll
+		epd_write_data(0x40);
+		epd_write_data(0x00);
+		epd_write_reg(0x01);  // Set MUX as 300
+		epd_write_data(0x2B);
+		epd_write_data(0x01);
+		epd_write_data(0x00);
+		epd_write_reg(0x3C); //BorderWavefrom
+		epd_write_data(0x01);	
+		epd_write_reg(0x11);	// data  entry  mode
+		epd_write_data(0x03);		// X-mode
+		epd_address_set(0,0,EPD_W-1,EPD_H-1);
 	#endif
 
-  epd_write_reg(0x11); // data entry mode
-  epd_write_data(0x01);
-
-	#ifdef EPD_154
-	epd_write_reg(0x44); // set Ram-X address start/end position
-  epd_write_data(0x00);
-  epd_write_data(0x18);
-
-  epd_write_reg(0x45);  // set Ram-Y address start/end position
-  epd_write_data(0xC7);
-  epd_write_data(0x00);
-  epd_write_data(0x00);
-  epd_write_data(0x00);
-	#else
-  epd_write_reg(0x44); // set Ram-X address start/end position
-  epd_write_data(0x00);
-  epd_write_data(0x0F); // 0x0F-->(15+1)*8=128
-
-  epd_write_reg(0x45);  // set Ram-Y address start/end position
-  epd_write_data(0x27); // 0x127-->(295+1)=296
-  epd_write_data(0x01);
-  epd_write_data(0x00);
-  epd_write_data(0x00);
-	#endif
-
-  epd_write_reg(0x3C); // BorderWavefrom
-  epd_write_data(0x05);
-
-	#if defined(EPD_29) || defined(EPD_213)
-  epd_write_reg(0x21); //  Display update control
-  epd_write_data(0x00);
-  epd_write_data(0x80);
-	#endif
-
-  epd_write_reg(0x18); // Read built-in temperature sensor
-  epd_write_data(0x80);
-
+	epd_write_reg(0x18); // Read built-in temperature sensor
+	epd_write_data(0x80);
+		
 	epd_setpos(0,0);
 
   if (epd_power_on())
@@ -304,6 +320,12 @@ uint8_t epd_init_partial(void)
   }
   _epd_write_data_over();
   epd_cs_set();
+	#elif defined(EPD_42)
+	epd_write_reg(0x3C); //BorderWavefrom
+	epd_write_data(0x80);	
+	epd_write_reg(0x21); // Display Update Controll
+  epd_write_data(0x00);    // RED normal
+  epd_write_data(0x00);    // single chip application
 	#endif
 
   return 0;
@@ -319,8 +341,13 @@ void epd_enter_deepsleepmode(uint8_t mode)
 
 uint8_t epd_power_on(void)
 {
+	#if defined EPD_42
+	epd_write_reg(0x22); // Display Update Control
+	epd_write_data(0xe0);
+	#else
 	epd_write_reg(0x22); // Display Update Control
 	epd_write_data(0xf8);
+	#endif
   epd_write_reg(0x20); // Activate Display Update Sequence
 
   return epd_wait_busy();
@@ -342,15 +369,20 @@ void epd_init_internalTempSensor(void)
 
   epd_write_reg(0x1A);
   epd_write_data(0x7F);
-  epd_write_data(0xF0);
+//  epd_write_data(0xF0);
 }
 
 void epd_update(void)
 {
-  epd_write_reg(0x22); // Display Update Control
+  
 	#ifdef EPD_154
+	epd_write_reg(0x22); // Display Update Control
 	epd_write_data(0xF4);
+	#elif defined EPD_42
+	epd_write_reg(0x22); // Display Update Control
+  epd_write_data(0xF7);
 	#else
+	epd_write_reg(0x22); // Display Update Control
   epd_write_data(0xF7);
 	#endif
   epd_write_reg(0x20); // Activate Display Update Sequence
@@ -360,15 +392,32 @@ void epd_update(void)
 
 void epd_update_partial(void)
 {
-  epd_write_reg(0x22); // Display Update Control
   #ifdef EPD_154
+	epd_write_reg(0x22); // Display Update Control
 	epd_write_data(0xFC);
+	#elif defined EPD_42
+	epd_write_reg(0x22); // Display Update Control
+	epd_write_data(0xFF);
 	#else
+	epd_write_reg(0x22); // Display Update Control
   epd_write_data(0xCC);
 	#endif
   epd_write_reg(0x20); // Activate Display Update Sequence
 
   epd_wait_busy();
+}
+
+void epd_address_set(uint16_t x_start,uint16_t y_start,uint16_t x_end,uint16_t y_end)
+{
+	epd_write_reg(0x44); // SET_RAM_X_ADDRESS_START_END_POSITION
+	epd_write_data((x_start>>3) & 0xFF);
+	epd_write_data((x_end>>3) & 0xFF);
+
+	epd_write_reg(0x45); // SET_RAM_Y_ADDRESS_START_END_POSITION
+	epd_write_data(y_start & 0xFF);
+	epd_write_data((y_start >> 8) & 0xFF);
+	epd_write_data(y_end & 0xFF);
+	epd_write_data((y_end >> 8) & 0xFF);
 }
 
 void epd_setpos(uint16_t x, uint16_t y)
@@ -380,8 +429,10 @@ void epd_setpos(uint16_t x, uint16_t y)
 
 	#ifdef EPD_154
 	_y = 199 - y;
-	#else
+	#elif defined(EPD_29) || defined(EPD_213)
 	_y = 295 - y;
+	#elif defined(EPD_42)
+	_y = y;
 	#endif
 
   epd_write_reg(0x4E); // set RAM x address count to 0;
@@ -397,6 +448,17 @@ void epd_writedata(uint8_t *Image1, uint32_t length)
   for (uint32_t j = 0; j < length; j++)
   {
     _epd_write_data(Image1[j]);
+  }
+  _epd_write_data_over();
+  epd_cs_set();
+}
+
+void epd_writedata2(uint8_t data, uint32_t length)
+{
+  epd_cs_reset();
+  for (uint32_t j = 0; j < length; j++)
+  {
+    _epd_write_data(data);
   }
   _epd_write_data_over();
   epd_cs_set();
@@ -430,6 +492,12 @@ void epd_display(uint8_t *Image1, uint8_t *Image2)
   _epd_write_data_over();
   epd_cs_set();
 
+	#if defined EPD_42
+	epd_write_reg(0x21); // Display Update Controll
+  epd_write_data(0x00);    // RED normal
+  epd_write_data(0x00);    // single chip application
+	#endif
+	
   epd_update();
 }
 
@@ -481,6 +549,11 @@ void epd_displayRED(uint8_t *Image)
   epd_write_reg(0x26);
   epd_writedata(Image, Width * Height);
 
+	#if defined EPD_42
+	epd_write_reg(0x21); // Display Update Controll
+  epd_write_data(0x00);    // RED normal
+  epd_write_data(0x00);    // single chip application
+	#endif
   epd_update();
 }
 
