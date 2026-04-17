@@ -15,6 +15,7 @@
 
 // 1.54'' EPD Module
 //GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(/*CS=5*/ CS_PIN, /*DC=*/ DC_PIN, /*RES=*/ RES_PIN, /*BUSY=*/ BUSY_PIN)); // GDEH0154D67 200x200, SSD1681
+//GxEPD2_4C<GxEPD2_154c_GDEM0154F51H, GxEPD2_154c_GDEM0154F51H::HEIGHT> display(GxEPD2_154c_GDEM0154F51H(/*CS=15*/ CS_PIN, /*DC=4*/ DC_PIN, /*RST=2*/ RES_PIN, /*BUSY=5*/ BUSY_PIN)); // GDEM0154F51H 200x200, JD79660
 
 // 2.13'' EPD Module
 //GxEPD2_BW<GxEPD2_213_BN, GxEPD2_213_BN::HEIGHT> display(GxEPD2_213_BN(/*CS=5*/ CS_PIN, /*DC=*/ DC_PIN, /*RES=*/ RES_PIN, /*BUSY=*/ BUSY_PIN)); // DEPG0213BN 122x250, SSD1680
@@ -23,6 +24,7 @@
 // 2.9'' EPD Module
 //GxEPD2_BW<GxEPD2_290_BS, GxEPD2_290_BS::HEIGHT> display(GxEPD2_290_BS(/*CS=5*/ CS_PIN, /*DC=*/ DC_PIN, /*RES=*/ RES_PIN, /*BUSY=*/ BUSY_PIN)); // DEPG0290BS 128x296, SSD1680
 //GxEPD2_3C<GxEPD2_290_C90c, GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ CS_PIN, /*DC=*/ DC_PIN, /*RES=*/ RES_PIN, /*BUSY=*/ BUSY_PIN)); // GDEM029C90 128x296, SSD1680
+//GxEPD2_4C<GxEPD2_290c_GDEY029F51H, GxEPD2_290c_GDEY029F51H::HEIGHT> display(GxEPD2_290c_GDEY029F51H(/*CS=15*/ CS_PIN, /*DC=4*/ DC_PIN, /*RST=2*/ RES_PIN, /*BUSY=5*/ BUSY_PIN)); // GDEY029F51H 168x384, JD79667
 
 // 3.7'' EPD Module
 //GxEPD2_BW<GxEPD2_370_GDEY037T03, GxEPD2_370_GDEY037T03::HEIGHT> display(GxEPD2_370_GDEY037T03(/*CS=5*/ CS_PIN, /*DC=*/ DC_PIN, /*RES=*/ RES_PIN, /*BUSY=*/ BUSY_PIN)); // GDEY037T03 240x416, UC8253
@@ -85,7 +87,10 @@ void helloFullScreenPartialMode()
   display.setRotation(1);
   display.setFont(&FreeMonoBold9pt7b);
   if (display.epd2.WIDTH < 104) display.setFont(0);
-  display.setTextColor(GxEPD_BLACK);
+  if((display.epd2.panel == GxEPD2::GDEY029F51H) || (display.epd2.panel == GxEPD2::GDEM0154F51H))
+    display.setTextColor(GxEPD_YELLOW);
+  else
+    display.setTextColor(GxEPD_BLACK);
   const char* updatemode;
   if (display.epd2.hasFastPartialUpdate)
   {
