@@ -2,9 +2,9 @@
 - WeAct Studio Official Link
 - taobao: weactstudio.taobao.com
 - aliexpress: weactstudio.aliexpress.com
-- github: github.com/WeActTC
-- gitee: gitee.com/WeAct-TC
-- blog: www.weact-tc.cn
+- github: github.com/WeActStudio
+- gitee: gitee.com/WeActStudio
+- blog: blog.weactstudio.com
 ---------------------------------------*/
 
 #include "epaper.h"
